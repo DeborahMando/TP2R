@@ -1,0 +1,481 @@
+---
+output:
+  pdf_document:
+    keep_tex: yes
+    fig_caption: yes
+    toc: no
+  word_document: default
+  html_document:
+    df_print: paged
+outp ut:
+  pdf_document:
+    toc: yes
+    fig_caption: yes
+    toc_depth: 4
+header-includes: 
+  - \usepackage{pdfpages}
+  - \usepackage{graphicx}
+---
+
+\includepdf{projet.pdf}
+
+```{=tex}
+\thispagestyle{empty}
+\newpage
+```
+```{=tex}
+\setcounter{tocdepth}{4}                
+\renewcommand{\contentsname}{\textcolor{blue}{Sommaire}}
+```
+\textcolor{blue}{\tableofcontents} \newpage
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+
+```
+
+
+# Introduction
+
+La production de sésame joue un rôle économique crucial pour de nombreux pays producteurs, offrant des opportunités d'emploi et de revenus pour les communautés agricoles locales. Cependant, des défis tels que les fluctuations des prix des matières premières, les maladies des plantes et les conditions météorologiques extrêmes peuvent influencer la productivité et la rentabilité de cette culture.La production de sésame implique plusieurs étapes, depuis la préparation du sol jusqu'à la récolte et au traitement des graines. Les producteurs produisent le sésame principalement pour ses graines, riches en huile et en nutriments essentiels comme le calcium, le fer et les antioxydants.La production de sésame est une composante essentielle de l'agriculture mondiale, offrant une multitude d'utilisations, d'ou notre intéret de faire une etudes sur les producteurs de sésame.Pour mener à bien notre etude, notre travail se repartira en trois parties essentielles: la première partie portera sur une préparation des données, la deuxième partie sur le Recodage et  la labelisation et la troisième partie consistera à faire des analyses descriptives à l'aide du logiciel R.   
+
+
+# Résumé
+
+L’objectif de ce projet est que vous appliquiez les outils que vous avez étudiés dans le cours du logiciel statistique R, dans le cas d’une étude de cas réelle. Le TP est à faire seul et à rendre au format .html ou .pdf. Les codes que vous utiliserez pour répondre aux questions seront à intégrer dans le corps de votre rapport. C’est pourquoi l’utilisation de R Markdown est à privilégier, mais vous pouvez également utiliser d’autres éditeurs de textes. . . En ce qui concerne l’organisation du travail à rendre, vous vous inspirerez de la façon dont est organisé le sujet du projet (vous n’êtes pas obliger de recopier l’énoncé). Le barème est indiqué en face de chaque question. Il tient compte du code proposé et dans le cas où nous vous demandons de faire des commentaires sur les résultats obtenus, nous tiendrons compte des commentaires que vous aurez fait dans la notation.
+
+# 1 Préparation des données 
+
+## 1.1	Description de la base
+
+
+## 1.2 Importation et mise en forme 
+
+### 1.2.1 Importer la base de données dans un objet de type data.frame nommé base_tp2
+
+```{r}
+#Importer la base de donnée dans un objet de type data:frame nommé base_tp2
+# appel de la fonction read_xlsx
+library(readxl)
+#Importer la base et la nommer base_tp2
+base_tp2 <- read_xlsx("Base TP2.xlsx")
+#View(base_tp2)
+```
+
+### 1.2.2	Donner le nombre de lignes et colonnes de la base
+
+```{r}
+#le nombre de lignes de la base base_tp2
+nrow(base_tp2)
+```
+```{r}
+#le nombre de colonnes de la base base_tp2
+ncol(base_tp2)
+```
+### 2.3 Le nombre de lignes de la base base_tp2 est 53 soit  PM et le nombre de colonnes de la base base_tp2 est 30  soit  variables 
+
+
+# 2 Recodage et labelisation 
+
+## 2.1 Labeliser toutes les variables de la base en suivant la description precedente.
+
+```{r}
+#pour labelliser les variables
+library(expss)
+base_tp2 = expss::apply_labels(base_tp2,sexe= "Sexe",
+	age = "Age:mettre 999 si Ne sait pas/ Response constrained to:(<=98 and >=18) or (=999)",
+  sit_mat = "Situation maritale",
+	si_chef_men = "Statut dans le ménage",	ethnie ="Ethnie",
+	occupation = "Occupation",
+	formation= "Formation",
+	niveau_alphabs= "Niveau d'alphabétisation Question relevant when:${formation}<=2",
+	sup_tot= "Quelle est la superficie totale emblavée en sémence la saison passée? EN HECTARES",types_varietes= "Quelles sont les variétés que vous utilisez pour la production de sésame?",
+	var_trad = "Si variétés traditionnelles, donnez les noms? Question relevant when: selected (${types_varietes},'1')",
+  raison_var_trad= "Pourquoi utilisez-vous les variétés traditionnelles? Question relevant when: selected(${types_varietes},'1')",
+	var_amel= "Si variétés améliorées, laquelle utilisez-vous?  Question relevant when: selected(${types_varietes},'2')",	raison_var_amel ="Pourquoi utilisez-vous les variétés améliorées?  Question relevant when: selected(${types_varietes},'2')",
+	criteres_var = "Quelles sont les critères de choix des variétés de sésame?"
+)
+```
+
+## 2.2 Recoder les modalites de la meme manière.
+
+```{r}
+# appel du package permettant d'avoir la fonction recode pour modifier et reorganiser les observations 
+library(dplyr)
+# Recode les modalités de la variable sexe avec la fonction recode_factor
+base_tp2$sexe = dplyr::recode_factor (base_tp2$sexe,
+                          "1"="Homme" ,
+                          "2"="Femme",
+                          .default = NULL,
+                          .missing = NULL,
+                          .ordered = FALSE
+                        )
+base_tp2$sexe
+#View(base_tp2)
+
+```
+
+## 2.3 Recode les modalités de la variable situation maritale avec la fonction recode_factor
+
+
+```{r}
+# Recode les modalités de la variable situation maritale avec la fonction recode_factor
+
+base_tp2$sit_mat = dplyr::recode_factor (base_tp2$sit_mat,
+                          "1"="Marié(e)" ,
+                          "3"="Veuf(ve)",
+                          "4"="Divorcé(e)" ,
+                          "5"="Séparé(e)",
+                          "6"="Célibataire" ,
+                          .default = NULL,
+                          .missing = NULL,
+                          .ordered = FALSE
+                        )
+base_tp2$sit_mat
+#View(base_tp2)
+```
+
+```{r}
+# Recode les modalités de la variable statut du chef de ménage avec la fonction recode_factor
+
+base_tp2$si_chef_men = dplyr::recode_factor (base_tp2$si_chef_men,
+                          "1"="femme du chef de ménage" ,
+                          "2"="chef de menage",
+                          "3"="fils-fille du chef de ménage" ,
+                          "99"="Autres",
+                          .default = NULL,
+                          .missing = NULL,
+                          .ordered = FALSE
+                        )
+base_tp2$si_chef_men
+#View(base_tp2)
+```
+
+```{r}
+# Recode les modalités de la variable ethnie avec la fonction recode_factor
+
+base_tp2$ethnie = dplyr::recode_factor (base_tp2$ethnie,
+                          "1"="Wolof" ,
+                          "2"="Pulaar",
+                          "3"="Sérère" ,
+                          "4"="Mandika/Bambara",
+                          "5"="Sonlnké" ,
+                          "6"="Diola",
+                          "7"="Manjack" ,
+                          "8"="Bainouk",
+                          "9"="Maures" ,
+                          "10"="Balante",
+                          "77"="Autre" ,
+                          .default = NULL,
+                          .missing = NULL,
+                          .ordered = FALSE
+                        )
+base_tp2$ethnie
+#View(base_tp2)
+
+```
+
+
+```{r}
+# Recode les modalités de la variable occupation avec la fonction recode_factor
+
+base_tp2$occupation = dplyr::recode_factor (base_tp2$occupation,
+                          "1"="Agriculture,Elevage,Sylviculture,Peche",
+                          "2"="Activités extractives",
+                          "3"="Activités de fabrication(Artisanat)",
+                          "4"="Activités de transformation",
+                          "5"="Production et distribution d'électricité et de gaz",
+                          "6"="Production et distribution d'eau,assainissement,traitement des déchets et dépollution" ,
+                          .default = NULL,
+                          .missing = NULL,
+                          .ordered = FALSE
+                        )
+base_tp2$occupation
+#View(base_tp2)
+
+```
+
+```{r}
+# Recode les modalités de la variable formation avec la fonction recode_factor
+
+base_tp2$formation = dplyr::recode_factor (base_tp2$formation,
+                          "1"="Non scolarisé" ,
+                          "2"="Elémentaire",
+                          "3"="Monyen" ,
+                          "4"="Secondaire",
+                          "5"="Licence" ,
+                          "6"="Master",
+                          "7"="Doctorat" ,
+                          "99"="Ne sait pas",
+                          .default = NULL,
+                          .missing = NULL,
+                          .ordered = FALSE
+                        )
+base_tp2$formation
+#View(base_tp2)
+
+```
+
+```{r}
+# Recode les modalités de la variable niveau d'alphabétisation avec la fonction recode_factor
+
+base_tp2$niveau_alphabs = dplyr::recode_factor (base_tp2$niveau_alphabs,
+                          "0"="Sans niveau" ,
+                          "1"="Sait lire dans une langue",
+                          "2"="Sait lire et écrire dans une langue" ,
+                          .default = NULL,
+                          .missing = NULL,
+                          .ordered = FALSE
+                        )
+base_tp2$niveau_alphabs
+#View(base_tp2)
+
+```
+
+
+```{r}
+# Recode les modalités de la variable types de variétés avec la fonction recode_factor
+
+base_tp2$types_varietes= dplyr::recode_factor (base_tp2$types_varietes,
+                          "1"="Traditionnelles" ,
+                          "2"="Améliorées",
+                          .default = NULL,
+                          .missing = NULL,
+                          .ordered = FALSE
+                        )
+base_tp2$types_varietes
+#View(base_tp2)
+
+```
+
+```{r}
+# Recode les modalités de la variable critères de choix de variétés avec la fonction recode_factor
+
+base_tp2$criteres_var = dplyr::recode_factor (base_tp2$criteres_var,
+                          "1"="rendements élevés" ,
+                          "2"="taille des graines",
+                          "3"="Résistantes aux maladies/ravageurs" ,
+                          "4"="Tolérantes aux sècheresses",
+                          "5"="Tolérantes aux inondations" ,
+                          "6"="Faible charge de travail",
+                          "7"="Faibles quantités d'intrants" ,
+                          "8"="facile à transformer",
+                          "9"="Haute teneur en huile" ,
+                          "10"="Haut rendement après transformation",
+                          "11"="Demande sur le marché" ,
+                          "12"="Bon gout" ,
+                          "13"="Belle couleur",
+                          "14"="Haut rendement en fourages" ,
+                          "15"="Qualité du fourage",
+                          "16"="autres à spécifier" ,
+ 
+                          .default = NULL,
+                          .missing = NULL,
+                          .ordered = FALSE
+                        )
+base_tp2$criteres_var
+#View(base_tp2)
+
+```
+
+
+
+# 3 Analyses descriptives 
+
+## 3.1 les statistiques descriptives de notre choix sur les variables
+
+
+### 3.1.1 Age moyen
+
+```{r}
+# Pour ressortir l'age Moyen des producteurs de sésame
+mean(base_tp2$age)
+```
+
+###  les producteurs de sésame on en moyenne 49 ans
+
+## 3.1.2 Création dun tableau nommé tab_criteres
+
+```{r}
+# pour créer un tableau ne contenant que les critères de choic des variétés  par la fonction select()et nous remarquons que le nom de ces variables débutent par "criteres_var_", nous avons donc utilisé select(starts_with()  
+library(dplyr)
+Selection<-base_tp2 %>% select(starts_with("criteres_var_"))
+attach(base_tp2)
+tab_criteres<-data.frame(Selection)# pour ressortir le tableau par affectation
+#View(tab_criteres)
+```
+
+### 3.1.3 Minimum/Maximum et/Moyenne des choix des producteurs par  critère pour le choix des variétés de sésame
+
+
+```{r}
+
+#Som_critere egale à la somme des choix des producteurs par  critère pour le choix des variétés de sésame
+attach(tab_criteres)
+library(dplyr)
+tab_criteres<-tab_criteres %>% mutate (Som_critere=rowSums (across(starts_with("criteres_var_") )))
+##tab_criteres
+min(tab_criteres$Som_critere)#pour ressortir le nombre Minimum des choix des producteurs par  critère pour le choix des variétés de sésame
+max(tab_criteres$Som_critere)#pour ressortir le nombre Maximum des choix des producteurs par  critère pour le choix des variétés de sésame
+mean(tab_criteres$Som_critere)##pour ressortir le nombre Moyen des choix des producteurs par  critère pour le choix des variétés de sésame
+```
+
+### 3.1.4 Commentaire sur les critères de choix des variétées de sésame
+
+nous notons que chaque producteur de sésame présentent un certains nombres de critères quant au choix des variétées de sésame pour la production. Ils présentent en moyenne 3 criteres de choix,les producteurs les plus exigent et regardant présentent 14 critères sur 16 et les moins exigeants par rapport au critères de choix des variétées de sésame ne présentent qu'un seul critère de choix des variétées de sésame pour leur production.
+
+
+
+# 3.2 Caractérisation des producteurs
+
+## 3.2.1 Tableau de repartition des producteurs suivant : sexe/Situation maritale/Statut dans le ménage/ethnie/occupation/formation/niveau_alphabs/types_varietes des producteurs de sésame
+
+```{r}
+##Analyses descriptives
+
+##création d'une fonction univarie() pour des statistiques descriptives univariées 
+
+## pour ressortir un tableau de la repartition des producteurs suivant les différentes variables que j'aurai à renseigner
+
+## code de ma fonction univarie
+tableau_repartition <- function(variable) {
+ni <- table(variable)
+effectif_total <- length(variable)
+fi <- ni / effectif_total * 100
+return(fi)
+
+}
+tableau_repartition(base_tp2$sexe) # pour sexe
+tableau_repartition(base_tp2$sit_mat) # pour la situation maritale
+tableau_repartition(base_tp2$si_chef_men)# pour le Statut dans le ménage 
+tableau_repartition(base_tp2$ethnie)# pour l'ethnie
+tableau_repartition(base_tp2$occupation)# pour sexe l'occupation
+tableau_repartition(base_tp2$formation)# pour la formation
+tableau_repartition(base_tp2$niveau_alphabs)# pour le niveau d'alphabétisation
+tableau_repartition(base_tp2$types_varietes)# pour les types de variétés
+
+```
+
+### 3.2.1 Commentaire sur les repartitions des producteurs suivant : sexe/Situation maritale/Statut dans le ménage/ethnie/occupation/formation/niveau_alphabs/types_varietes des producteurs de sésame
+  
+
+
+les ci dessus donnent une certaine description des producteurs.Nous notons une prédominance d'homme producteurs (66.03774). la majorité des producteurs sont des chefs de ménage soit 52.83019 sur 100producteurs suivi par la femme du chef de ménage (30.18)les fils-fille du chef de ménage ne represente que 16.98.
+Sur 100producteurs 96 sont mariés (e),ils sont en majorité Non scolarisé(56.60).Parmi les ethnies représentés dans la production du sésameles Sérère sont ceux qui produisent plus le sésame (24.528) et les Diolaceux qui en produisent le moins (1.88).Presque la moitié des producteurs ne savent ni lire dans une langue,ni écrire dans une langue; ils n'ont aucun niveau d'alphabétisation et sur 100 producteurs, 91 utilisent les variétés traditionnelles:
+
+## 3.2.2 Tableau de contingence des producteurs suivant :les types_varieteset la formation / Les variétés traditionnelles et le nombre de critères de choix des variétées de sésame et/ les variétés modernes et le nombre de critères de choix des variétées de sésame 
+
+
+```{r}
+attach(base_tp2)
+attach(tab_criteres)
+tableau_crois <- function( variable1, variable2) {
+  # Créer le tableau croisé
+  crosstab <- table(variable1, variable2)
+  
+  # Retourner le tableau croisé
+  return(crosstab)
+}
+tableau_crois(types_varietes,formation) # Repartition des producteurs suivant leur formation et le type de variété utilisé
+tableau_crois(types_varietes_1,Som_critere) # Repartition des producteurs suivant l'utilisation de la variété traditionnelle de sésame et le nombre de ses critères
+tableau_crois(types_varietes_2,Som_critere) # Repartition des producteurs suivant l'utilisation de la variété moderne de sésame et le nombre de ses critères 
+
+```
+
+### 3.2.3 Commentaire sur  les Tableaux de contingence des producteurs suivant :les types_varieteset la formation / Les variétés traditionnelles et le nombre de critères de choix des variétées de sésame et/ les variétés modernes et le nombre de critères de choix des variétées de sésame
+
+DE cette sortie, il ressort que parmi les producteurs utilisant les variétées traditionnelles de sésame, aucun n'a le master ni le doctorat,la majorité utilisant ces variétés est non scolarisé soit 28 producteurs sur 48:Nous nottons que plus le niveau de la formation est élevé et plus il ya moins de producteurs qui utilisent les variétées traditionnelles de sésame pour leur production.Sur 30 producteurs non scolarisés,seulement 2 les variétés améliorées.
+Parmi les producteurs utilisant les variétées traditionnelles de sésame la plupart(19 producteurs) n'admet pas un grand nombre de critères de choix soit 2 critères sur 16 critères.
+
+
+### 3.2.4 Tableau de repartition des producteurs suivant les différents critères de choix des variétés de sésames
+
+```{r}
+#pour ressortir le nombre de producteurs ayant un critere donné
+library(dplyr)
+colSums (tab_criteres, na.rm = FALSE, dims = 1) # pour ressortir la somme par colonne
+
+```
+
+
+### 3.2.5 Commentaire  des Tableaux de repartition des producteurs suivant les différents critères de choix des variétés de sésames
+
+
+Cette sortie montre que les producteurs sont plus regardant aux critères rendements élevés,faible charge de travail et la demande dur le marché qui representent respectivement 45, 26 et 24 producteurs sur 53 producteurs.Les critères haut rendement après transformation, résistance aux maladies/ravageurs et tolérances aux inondations quant à eux sont faiblement considérés par les producteurs de sésames pour le choix des variétés de sésame respectivement 2,3 et 3 producteurs sur 53 producteurs.
+
+## 3.3 Quelques représentations graphiques à titre illustratif et recappitulatif des analyses descriptives menées ci dessus
+
+
+## 3.3.1 Representation des producteurs suivant le type de variété choisi
+
+
+```{r}
+# Pour ressortir une Representation graphique des producteurs suivant le type de variété
+library(ggplot2)
+ggplot(base_tp2) +
+  aes(x = types_varietes) +
+  geom_bar(fill ="blue", colour = "black", binwidth = 2) + # pour personnaliser le graphique par la couleur;taille
+  ggtitle("Representation des producteurs suivant le type de variété")+ # pour donner un titre au graphique
+  xlab(" le le type de variété") + # nom de l'axe des abscisses
+  ylab("proportion")+ # nom de l'axe des ordonnées
+  labs(size = "Effectifs")
+
+```
+
+
+
+## 3.3.2 Representation des producteurs suivant le sexe
+
+
+```{r}
+# Pour ressortir une Representation graphique des producteurs suivant le sexe
+
+library(ggplot2)
+ggplot(base_tp2) +
+  aes(x = sexe) +
+  geom_bar(fill ="pink", colour = "black", binwidth = 2) + # pour personnaliser le graphique par la couleur;taille
+  ggtitle("Representation des producteurs suivant le sexe")+ # pour donner un titre au graphique
+  xlab(" le sexe du producteur") + # nom de l'axe des abscisses
+  ylab("Effectifs")+ # nom de l'axe des ordonnées
+  labs(size = "Effectifs")
+
+```
+
+
+## 3.3.3 Répartition des producteurs suivant le niveau d'alphabétisation 
+
+
+```{r}
+# Pour ressortir une Representation graphique des producteurs suivant leur niveau d'alphabétisation
+
+library(ggplot2)
+ggplot(base_tp2) +
+  aes(x = niveau_alphabs) +
+  geom_bar(fill ="light green", colour = "black", binwidth = 2) + # pour personnaliser le graphique par la couleur;taille
+  ggtitle("Répartition des producteurs suivant le niveau d'alphabétisation")+ # pour donner un titre au graphique
+  xlab(" les niveaux d'alphabétisation ") + # nom de l'axe des abscisses
+  ylab("Effectifs")# nom de l'axe des ordonnées
+```
+
+## 3.3.4 Representation des producteurs suivant leur formation et les types de variétés de sésame 
+
+
+
+```{r}
+# Pour ressortir une Representation graphique des producteurs suivant leur leur formation et les types de variétés de sésame qu'ils utilisent
+
+ggplot(base_tp2,aes(x=formation,y= types_varietes))+ 
+  geom_bar(stat = "identity",fill="steelblue")+
+coord_flip()+
+    ggtitle("Representation des producteurs suivant leur formation et les types de variétés de sésame")# pour le titre du gr
+
+```
+
+# Conclusion
+
+Au terme de notre analyse descriptive, il ressort qu'en moyenne,les producteurs de sésame ont 49 ans; sont en grande partie non scolarisés et ont toujours recourt aux variétés traditionnelles pour leurs production.il ressort également de nos analyses que les hommes mariés sont plus représentés dans la production du sésame.
+A cette étape il est à noter que le logiciel R nous a été d'une grande utilité dans cette analyse.
